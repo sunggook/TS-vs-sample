@@ -6,8 +6,20 @@ page_type: sample
 products: 
   - microsoft-edge
 ---
-# Getting Started with WebView2 for Win32 apps
+# Sample for WebView2 TextureStream API
 
-This sample relates to the TextureStream API of the Microsoft Edge WebView2.
+This sample is associated with the TextureStream API of Microsoft Edge's WebView2.
 
-https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/winrt/microsoft_web_webview2_core/corewebview2texturestream?view=webview2-winrt-1.0.2194-prerelease
+The TextureStream API empowers the WebView2 host to transmit video frames to the WebView2 engine, also known as the Edge Engine. 
+This enables the stream to be played in Javascript, or alternatively, Javascript can modify the stream and return it to the WebView2 host.
+
+The WebView2 host can persist in using its current video capture and editing code, and it can be utilized to play the video 
+within the Javascript in the WebView2 content.
+
+# The Visual Studio Sample
+
+This includes two distinct sample sites, one at `https://sungook.github.io/get-ts` and the other at `https://sungook.github.io/register-ts`. 
+These samples are modifications of the samples found at `https://webrtc.github.io/samples/`.
+
+The site `https://sungook.github.io/get-ts` supports only the `chrome.webview.getTextureStream` API, 
+while `https://sungook.github.io/register-ts` supports both `chrome.webview.getTextureStream` and `chrome.webview.registerTextureStream` APIs.
