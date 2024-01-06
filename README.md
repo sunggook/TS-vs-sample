@@ -25,6 +25,11 @@ The site `https://sungook.github.io/get-ts` supports only the `chrome.webview.ge
 while `https://sungook.github.io/register-ts` supports both `chrome.webview.getTextureStream` and `chrome.webview.registerTextureStream` APIs.
 
 # Features
+* It captures machine's camera and play it.
+  
+* It supports both of getTextureStream and registerTextureStream APIs, depending on site url.
+  - See 'kSampleSite'
+    
 * We can specify the private WebView2 binary.
   - See 'kPrivateBinaryFolder'
     
