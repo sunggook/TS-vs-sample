@@ -23,3 +23,10 @@ These samples are modifications of the samples found at `https://webrtc.github.i
 
 The site `https://sungook.github.io/get-ts` supports only the `chrome.webview.getTextureStream` API, 
 while `https://sungook.github.io/register-ts` supports both `chrome.webview.getTextureStream` and `chrome.webview.registerTextureStream` APIs.
+
+# Features
+* We can specify the private WebView2 binary.
+  - See 'kPrivateBinaryFolder'
+    
+* We can enable software rendering mode in machine that GPU is not available, post Edge v121.
+  - See 'g_warp_mode'.
