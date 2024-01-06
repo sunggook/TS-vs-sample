@@ -13,41 +13,37 @@
 using Microsoft::WRL::ComPtr;
 using Microsoft::WRL::Callback;
 
-// Global variables
-bool g_warp_mode = true;
+namespace {
+    // Global variables
+    bool g_warp_mode = false;
 
-// PostTextureStream variables
-HWND main_window_handle_ = nullptr;
+    // PostTextureStream variables
+    HWND main_window_handle_ = nullptr;
 
-// constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/get-ts/";
-constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/register-ts";
+    // chrome.webview.getTextureStream API sample.
+    // constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/get-ts/";
 
-// The main window class name.
-static TCHAR kWindowClassName[] = _T("DesktopApp");
+    // chrome.webview.registerTextureStream API sample.
+    constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/register-ts";
 
-// The string that appears in the application's title bar.
-static TCHAR kWindowTitle[] = _T("WebView sample");
+    // The main window class name.
+    constexpr wchar_t kWindowClassName[] = L"DesktopApp";
 
-// sunggch. HINSTANCE g_hInstance;
+    // The string that appears in the application's title bar.
+    constexpr wchar_t kWindowTitle[] = L"WebView2 TextureStream API sample";
 
-// Forward declarations of functions included in this code module:
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK WndChildProc(HWND, UINT, WPARAM, LPARAM);
+    std::unique_ptr<WebView2Manager> webview2_window_;
+    std::unique_ptr<HostTextureStream> host_texture_stream_;
 
-class WebView2Manager;
-std::unique_ptr<WebView2Manager> webview2_window_;
+    struct BufferData {
+        HANDLE sharedHandle;
+        int buffer_id;
+    };
 
-class HostTextureStream;
-std::unique_ptr<HostTextureStream> host_texture_stream_;
-
-struct BufferData {
-HANDLE sharedHandle;
-int buffer_id;
-};
-
-static volatile TextureBufferInfo* mapped_texture_info_ = nullptr;
-static HANDLE frog_webviewWindow_process_to_slimcore = nullptr;
-static HANDLE from_slimcore_to_webview_process = nullptr;
+    static volatile TextureBufferInfo* mapped_texture_info_ = nullptr;
+    static HANDLE frog_webviewWindow_process_to_slimcore = nullptr;
+    static HANDLE from_slimcore_to_webview_process = nullptr;
+}
 
 void EnsureMemoryMappedSection() {
 if (!mapped_texture_info_) {
@@ -165,6 +161,69 @@ while (true) {
 return 0;
 }
 
+LRESULT CALLBACK WndProc(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param) {
+
+    RECT right_pane = {};
+    RECT bounds = {};
+    switch (message)
+    {
+    case WM_SIZE:
+
+        GetClientRect(window_handle, &bounds);
+        if (webview2_window_ && webview2_window_->GetController()) {
+            right_pane.left = (bounds.right - bounds.left);
+            right_pane.top = bounds.top;
+            right_pane.right = bounds.right / 2;
+            right_pane.bottom = bounds.bottom;
+            webview2_window_->GetController()->put_Bounds(right_pane);
+        };
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    case WM_SHOWWINDOW:
+        break;
+    case WM_TIMER:
+        break;
+
+    case IDC_TEST_SEND_TEXTURE:
+        if (host_texture_stream_) {
+            host_texture_stream_->SendTexture((int)w_param, mapped_texture_info_->timestamp);
+        }
+        break;
+
+    case IDC_TEST_REQUEST_BUFFER:
+        if (host_texture_stream_) {
+            host_texture_stream_->GetAvailableBuffer();
+        }
+        break;
+
+    case IDC_TEST_CREATE_NEW_BUFFER:
+        if (host_texture_stream_) {
+            host_texture_stream_->CreateNewBuffer((UINT32)w_param, (UINT32)l_param);
+        }
+        break;
+
+    case IDC_WEBVIEW2_NAVIGATION_COMPLETE:
+        // navigation completed, so we can create CreateTextureStream now.
+
+        // We will create 2 texture stream with different names.
+        host_texture_stream_ = webview2_window_->CreateTextureStreamFromWebView2Window(L"webview2-abcd1234");
+        assert(host_texture_stream_);
+        break;
+
+    default:
+        return DefWindowProc(window_handle, message, w_param, l_param);
+        break;
+    }
+
+    return 0;
+}
+
+LRESULT CALLBACK WndChildProc(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param) {
+    return DefWindowProc(window_handle, message, w_param, l_param);
+}
+
 int CALLBACK WinMain(
   _In_ HINSTANCE instance,
   _In_ HINSTANCE hPrevInstance,
@@ -242,75 +301,5 @@ HWND CreateSubWindow(HINSTANCE instance, int cmd_show, PCWSTR class_name, PCWSTR
   UpdateWindow(window_handle);
 
   return window_handle;
-}
-
-struct TexturePool {
-  std::vector<ComPtr<ICoreWebView2ExperimentalTexture>> texture_pools;
-  int next_index;
-  static int kMaxCount;
-};
-int TexturePool::kMaxCount = 10;
-
-LRESULT CALLBACK WndProc(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param) {
-
-  RECT right_pane = {};
-  RECT bounds = {};
-  switch (message)
-  {
-  case WM_SIZE:
-    
-    GetClientRect(window_handle, &bounds);
-    if (webview2_window_ && webview2_window_->GetController()) {
-      right_pane.left = (bounds.right - bounds.left);
-      right_pane.top = bounds.top;
-      right_pane.right = bounds.right / 2;
-      right_pane.bottom = bounds.bottom;
-      webview2_window_->GetController()->put_Bounds(right_pane);
-    };
-    break;
-  case WM_DESTROY:
-    PostQuitMessage(0);
-    break;
-  case WM_SHOWWINDOW:
-    break;
-  case WM_TIMER:
-    break;
-
-  case IDC_TEST_SEND_TEXTURE:
-    if (host_texture_stream_) {
-      host_texture_stream_->SendTexture((int)w_param, mapped_texture_info_->timestamp);
-    }
-    break;
-
-  case IDC_TEST_REQUEST_BUFFER:
-    if (host_texture_stream_) {
-      host_texture_stream_->GetAvailableBuffer();
-    }
-    break;
-
-  case IDC_TEST_CREATE_NEW_BUFFER:
-    if (host_texture_stream_) {
-      host_texture_stream_->CreateNewBuffer((UINT32)w_param, (UINT32)l_param);
-    }
-    break;
-
-  case IDC_WEBVIEW2_NAVIGATION_COMPLETE:
-    // navigation completed, so we can create CreateTextureStream now.
-
-    // We will create 2 texture stream with different names.
-    host_texture_stream_ = webview2_window_->CreateTextureStreamFromWebView2Window(L"webview2-abcd1234");
-    assert(host_texture_stream_);
-    break;
-
-  default:
-    return DefWindowProc(window_handle, message, w_param, l_param);
-    break;
-  }
-
-  return 0;
-}
-
-LRESULT CALLBACK WndChildProc(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param) {
-  return DefWindowProc(window_handle, message, w_param, l_param);
 }
 

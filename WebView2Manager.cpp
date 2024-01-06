@@ -15,10 +15,10 @@ constexpr wchar_t kCustomUserDir[] = L"d:\\Temp\\UserData-1";
 // WebView2 Beta.
 // Please find out the private binary folder, for example if it is Edge (Beta/Dev/Canary), the location is 
 // c:\program files (x86) or c:\users\{account}\AppData\Local\Microsoft or c:\Program Files (x86)\Microsoft.
-constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
+// constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
 
 // WebView2 Stable.
-// constexpr wchar_t kPrivateBinaryFolder[] = L"";
+constexpr wchar_t kPrivateBinaryFolder[] = L"";
 
 WebView2Manager::WebView2Manager(HWND hwnd, bool warp_mode) : window_handle_(hwnd), warp_mode_(warp_mode) {}
 WebView2Manager::~WebView2Manager() = default;
