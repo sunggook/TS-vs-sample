@@ -75,21 +75,19 @@ HRESULT MFCaptureManager::CreateMFDevice(LUID luid, bool warp_mode, ID3D11Device
     const uint32_t kDeviceFlags = warp_mode ? D3D11_CREATE_DEVICE_BGRA_SUPPORT :
         D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_VIDEO_SUPPORT;
 
-    if (!warp_mode) {
-        while (spFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
-        {
-            DXGI_ADAPTER_DESC desc;
-            DX::ThrowIfFailed(pAdapter->GetDesc(&desc));
-            if (desc.AdapterLuid.HighPart == luid.HighPart &&
-                desc.AdapterLuid.LowPart == luid.LowPart) {
-                dxgi_adapter_ = pAdapter;
-                driveType = D3D_DRIVER_TYPE_UNKNOWN;
-                break;
-            }
-
-            vAdapters.push_back(pAdapter);
-            ++i;
+    while (spFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+    {
+        DXGI_ADAPTER_DESC desc;
+        DX::ThrowIfFailed(pAdapter->GetDesc(&desc));
+        if (desc.AdapterLuid.HighPart == luid.HighPart &&
+            desc.AdapterLuid.LowPart == luid.LowPart) {
+            dxgi_adapter_ = pAdapter;
+            driveType = D3D_DRIVER_TYPE_UNKNOWN;
+            break;
         }
+
+        vAdapters.push_back(pAdapter);
+        ++i;
     }
 
     DX::ThrowIfFailed(D3D11CreateDevice(dxgi_adapter_.Get(), driveType, nullptr,
