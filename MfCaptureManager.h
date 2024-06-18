@@ -225,7 +225,7 @@ public:
 
     ~MFCaptureManager();
 
-    HRESULT CreateMFDevice(LUID luid, bool warp_mode, ID3D11Device** device);
+    HRESULT CreateMFDevice(LUID luid, ID3D11Device** device);
 
     HRESULT InitMF();
     HRESULT AllocateAndStartLocked();

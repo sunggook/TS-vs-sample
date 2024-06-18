@@ -15,7 +15,6 @@ constexpr wchar_t kCustomUserDir[] = L"d:\\Temp\\UserData-1";
 // WebView2 Beta.
 // Please find out the private binary folder, for example if it is Edge (Beta/Dev/Canary), the location is 
 // c:\program files (x86) or c:\users\{account}\AppData\Local\Microsoft or c:\Program Files (x86)\Microsoft.
-// constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
 
 // WebView2 Stable.
 constexpr wchar_t kPrivateBinaryFolder[] = L"";
@@ -34,7 +33,7 @@ HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
 
     }
     else {
-        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream");
+        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream --enable-logging=stderr --v=1 > log.txt 2>&1");
     }
 
     CreateCoreWebView2EnvironmentWithOptions(/*edge sub folder=*/kPrivateBinaryFolder, /*custom user directory=*/kCustomUserDir, options.Get(),
@@ -129,7 +128,7 @@ HRESULT WebView2Manager::InitializeDevice() {
             browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
             browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
 
-            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
+            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid);
 
             return S_OK;
         }).Get(), &luid_token);
@@ -137,7 +136,7 @@ HRESULT WebView2Manager::InitializeDevice() {
     LUID browser_luid;
     browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
     browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
-    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
+    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid);
 
     d3d_device_created_ = true;
 

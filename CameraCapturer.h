@@ -11,8 +11,8 @@ public:
     CameraCapturer();
     ~CameraCapturer();
 
-    void CreateD3DDeviceAndMFCamera(HWND window_handle, LUID browser_luid, bool warp_mode);
-    HRESULT InitializeRenderCameraView(HWND window_handle, LUID luid, bool warp_mode);
+    void CreateD3DDeviceAndMFCamera(HWND window_handle, LUID browser_luid);
+    HRESULT InitializeRenderCameraView(HWND window_handle, LUID luid);
     HRESULT StartMediaFoundationCapture(HWND window_handle);
     void StopMediaFoundationCapture();
     LUID GetBrowserAdapterLuid();

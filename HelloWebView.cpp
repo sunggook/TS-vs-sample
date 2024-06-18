@@ -21,10 +21,10 @@ namespace {
     HWND main_window_handle_ = nullptr;
 
     // chrome.webview.getTextureStream API sample.
-    // constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/get-ts/";
+    constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/get-ts/";
 
     // chrome.webview.registerTextureStream API sample.
-    constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/register-ts";
+    // constexpr wchar_t kSampleSite[] = L"https://sunggook.github.io/register-ts";
 
     // The main window class name.
     constexpr wchar_t kWindowClassName[] = L"DesktopApp";
