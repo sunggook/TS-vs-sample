@@ -7,7 +7,7 @@
 class HostTextureStream;
 class WebView2Manager {
 public:
-    WebView2Manager(HWND hwnd, bool warp_mode);
+    WebView2Manager(HWND hwnd, bool warp_mode, bool software_rendering);
     ~WebView2Manager();
 
     HRESULT CreateCoreWebView2(const wchar_t* site_url);
@@ -22,6 +22,7 @@ private:
 
     HWND window_handle_ = nullptr;
     bool warp_mode_ = false;
+    bool software_rendering_ = false;
     bool initialized_ = false;
     bool d3d_device_created_ = false;
     std::wstring site_url_;

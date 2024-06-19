@@ -18,19 +18,19 @@ CameraCapturer::~CameraCapturer() {
     StopMediaFoundationCapture();
 }
 
-void CameraCapturer::CreateD3DDeviceAndMFCamera(HWND window_handle, LUID browser_luid) {
+void CameraCapturer::CreateD3DDeviceAndMFCamera(HWND window_handle, LUID browser_luid, bool warp_mode) {
     // Create D3D device with browser_luid
-    DX::ThrowIfFailed(InitializeRenderCameraView(window_handle, browser_luid));
+    DX::ThrowIfFailed(InitializeRenderCameraView(window_handle, browser_luid, warp_mode));
 
     browser_adapter_luid_ = browser_luid;
 }
 
-HRESULT CameraCapturer::InitializeRenderCameraView(HWND window_handle, LUID luid) {
+HRESULT CameraCapturer::InitializeRenderCameraView(HWND window_handle, LUID luid, bool warp_mode) {
     if (mf_capture_manager_)
         return S_OK;
 
     mf_capture_manager_ = std::make_unique<MFCaptureManager>(window_handle);
-    DX::ThrowIfFailed(mf_capture_manager_->CreateMFDevice(luid, &d3d_device_));
+    DX::ThrowIfFailed(mf_capture_manager_->CreateMFDevice(luid, &d3d_device_, warp_mode));
     DX::ThrowIfFailed(mf_capture_manager_->InitMF());
 
     d3d_device_->GetImmediateContext(&device_context_);

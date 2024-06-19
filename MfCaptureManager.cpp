@@ -44,7 +44,7 @@ HRESULT MFCaptureManager::InitMF() {
     return S_OK;
 }
 
-HRESULT MFCaptureManager::CreateMFDevice(LUID luid, ID3D11Device** device) {
+HRESULT MFCaptureManager::CreateMFDevice(LUID luid, ID3D11Device** device, bool warp_mode) {
     UINT d3d_device__reset_token = 0;
     DX::ThrowIfFailed(MFCreateDXGIDeviceManager(&d3d_device__reset_token,
         &mf_dxgi_device_manager_));
@@ -71,8 +71,9 @@ HRESULT MFCaptureManager::CreateMFDevice(LUID luid, ID3D11Device** device) {
     IDXGIAdapter* pAdapter;
     std::vector<IDXGIAdapter*> vAdapters;
 
-    D3D_DRIVER_TYPE driveType = D3D_DRIVER_TYPE_HARDWARE;
-    const uint32_t kDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_VIDEO_SUPPORT;
+    D3D_DRIVER_TYPE driveType = warp_mode ? D3D_DRIVER_TYPE_WARP : D3D_DRIVER_TYPE_HARDWARE;
+    const uint32_t kDeviceFlags = warp_mode ? D3D11_CREATE_DEVICE_BGRA_SUPPORT :
+                                              D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_VIDEO_SUPPORT;
 
     while (spFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
     {

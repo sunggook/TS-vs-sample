@@ -10,16 +10,18 @@ using Microsoft::WRL::Make;
 
 
 // Custom user directory. Any folder that WebView2 user data directory.
-constexpr wchar_t kCustomUserDir[] = L"d:\\Temp\\UserData-1";
+constexpr wchar_t kCustomUserDir[] = L"q:\\Temp\\UserData-1";
 
 // WebView2 Beta.
 // Please find out the private binary folder, for example if it is Edge (Beta/Dev/Canary), the location is 
 // c:\program files (x86) or c:\users\{account}\AppData\Local\Microsoft or c:\Program Files (x86)\Microsoft.
+// constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
 
 // WebView2 Stable.
 constexpr wchar_t kPrivateBinaryFolder[] = L"";
 
-WebView2Manager::WebView2Manager(HWND hwnd, bool warp_mode) : window_handle_(hwnd), warp_mode_(warp_mode) {}
+WebView2Manager::WebView2Manager(HWND hwnd, bool warp_mode, bool software_rendering) 
+        : window_handle_(hwnd), warp_mode_(warp_mode), software_rendering_(software_rendering) {}
 WebView2Manager::~WebView2Manager() = default;
 
 HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
@@ -28,12 +30,12 @@ HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
     auto options =
         Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
 
-    if (warp_mode_) {
+    if (software_rendering_) {
         options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream --disable-gpu");
 
     }
     else {
-        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream --enable-logging=stderr --v=1 > log.txt 2>&1");
+        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream");
     }
 
     CreateCoreWebView2EnvironmentWithOptions(/*edge sub folder=*/kPrivateBinaryFolder, /*custom user directory=*/kCustomUserDir, options.Get(),
@@ -128,7 +130,7 @@ HRESULT WebView2Manager::InitializeDevice() {
             browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
             browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
 
-            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid);
+            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
 
             return S_OK;
         }).Get(), &luid_token);
@@ -136,7 +138,7 @@ HRESULT WebView2Manager::InitializeDevice() {
     LUID browser_luid;
     browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
     browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
-    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid);
+    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
 
     d3d_device_created_ = true;
 
