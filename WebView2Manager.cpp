@@ -8,9 +8,17 @@ using Microsoft::WRL::ComPtr;
 using Microsoft::WRL::Callback;
 using Microsoft::WRL::Make;
 
+// The machine does not have GPU.
+bool g_warp_mode = false;
+
+// The application renderer does not use GPU regardless of GPU availability.
+bool g_disable_gpu_on_renderer = true;
+
+// The application renderer does not use software rendering regardless of GPU disablement.
+bool g_disable_software_render = true;
 
 // Custom user directory. Any folder that WebView2 user data directory.
-constexpr wchar_t kCustomUserDir[] = L"q:\\Temp\\UserData-1";
+constexpr wchar_t kCustomUserDir[] = L"D:\\Temp\\UserData-1";
 
 // WebView2 Beta.
 // Please find out the private binary folder, for example if it is Edge (Beta/Dev/Canary), the location is 
@@ -18,10 +26,11 @@ constexpr wchar_t kCustomUserDir[] = L"q:\\Temp\\UserData-1";
 // constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
 
 // WebView2 Stable.
-constexpr wchar_t kPrivateBinaryFolder[] = L"";
+// constexpr wchar_t kPrivateBinaryFolder[] = L"";
+constexpr wchar_t kPrivateBinaryFolder[] = L"C:\\edge\\src\\out\\release_full_x64";
 
-WebView2Manager::WebView2Manager(HWND hwnd, bool warp_mode, bool software_rendering) 
-        : window_handle_(hwnd), warp_mode_(warp_mode), software_rendering_(software_rendering) {}
+WebView2Manager::WebView2Manager(HWND hwnd) 
+        : window_handle_(hwnd) {}
 WebView2Manager::~WebView2Manager() = default;
 
 HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
@@ -30,13 +39,17 @@ HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
     auto options =
         Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
 
-    if (software_rendering_) {
-        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream --disable-gpu");
+    std::wstring arguments = L"--enable-features=msWebView2TextureStream";
 
+    if (g_disable_gpu_on_renderer) {
+        arguments += L"  --disable-gpu";
     }
-    else {
-        options->put_AdditionalBrowserArguments(L"--enable-features=msWebView2TextureStream");
+
+    if (g_disable_software_render) {
+        arguments += L"  --disable-features=msEdgeTextureStreamSoftwareRenderingWhenGpuDisabled";
     }
+
+    options->put_AdditionalBrowserArguments(arguments.c_str());
 
     CreateCoreWebView2EnvironmentWithOptions(/*edge sub folder=*/kPrivateBinaryFolder, /*custom user directory=*/kCustomUserDir, options.Get(),
         Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
@@ -130,7 +143,7 @@ HRESULT WebView2Manager::InitializeDevice() {
             browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
             browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
 
-            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
+            CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, g_warp_mode);
 
             return S_OK;
         }).Get(), &luid_token);
@@ -138,7 +151,7 @@ HRESULT WebView2Manager::InitializeDevice() {
     LUID browser_luid;
     browser_luid.LowPart = browser_luid_value & 0xFFFFFFFF;
     browser_luid.HighPart = (browser_luid_value >> 32) & 0xFFFFFFFF;
-    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, warp_mode_);
+    CameraCapturer::GetInstance()->CreateD3DDeviceAndMFCamera(window_handle_, browser_luid, g_warp_mode);
 
     d3d_device_created_ = true;
 

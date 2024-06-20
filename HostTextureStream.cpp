@@ -64,7 +64,7 @@ HRESULT HostTextureStream::CreateNewBuffer(uint32_t width, uint32_t height) {
     ComPtr<ICoreWebView2ExperimentalTexture> texture_buffer;
     DX::ThrowIfFailed(texture_stream_->CreateTexture(width_, height_, &texture_buffer));
     assert(texture_buffer);
-
+    
     // texture_buffer->get_Handle(&slimCoreHandle);
     IUnknown* texture_resource = nullptr;
     texture_buffer->get_Resource(&texture_resource);

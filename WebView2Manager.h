@@ -7,7 +7,7 @@
 class HostTextureStream;
 class WebView2Manager {
 public:
-    WebView2Manager(HWND hwnd, bool warp_mode, bool software_rendering);
+    WebView2Manager(HWND hwnd);
     ~WebView2Manager();
 
     HRESULT CreateCoreWebView2(const wchar_t* site_url);

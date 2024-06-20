@@ -16,12 +16,6 @@ using Microsoft::WRL::Callback;
 namespace {
     // Global variables
     
-    // The machine does not have GPU.
-    bool g_warp_mode = true;
-
-    // The application renderer does not use GPU regardless of GPU availability.
-    bool g_use_software_renderer = false;
-
     // PostTextureStream variables
     HWND main_window_handle_ = nullptr;
 
@@ -240,7 +234,7 @@ int CALLBACK WinMain(
     HWND window_handle = CreateSubWindow(instance, cmd_show, kWindowClassName, kWindowTitle);
     main_window_handle_ = window_handle;
 
-    webview2_window_ = std::make_unique<WebView2Manager>(window_handle, g_warp_mode, g_use_software_renderer);
+    webview2_window_ = std::make_unique<WebView2Manager>(window_handle);
 
     // It is a simplied WebView2 creation with single site.
     // Once navigation done in the WebView2, it will send a message
