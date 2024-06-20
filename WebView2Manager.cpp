@@ -12,10 +12,10 @@ using Microsoft::WRL::Make;
 bool g_warp_mode = false;
 
 // The application renderer does not use GPU regardless of GPU availability.
-bool g_disable_gpu_on_renderer = true;
+bool g_disable_gpu_on_renderer = false;
 
 // The application renderer does not use software rendering regardless of GPU disablement.
-bool g_disable_software_render = true;
+bool g_disable_software_renderer = false;
 
 // Custom user directory. Any folder that WebView2 user data directory.
 constexpr wchar_t kCustomUserDir[] = L"D:\\Temp\\UserData-1";
@@ -26,8 +26,7 @@ constexpr wchar_t kCustomUserDir[] = L"D:\\Temp\\UserData-1";
 // constexpr wchar_t kPrivateBinaryFolder[] = L"c:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\121.0.2277.4";
 
 // WebView2 Stable.
-// constexpr wchar_t kPrivateBinaryFolder[] = L"";
-constexpr wchar_t kPrivateBinaryFolder[] = L"C:\\edge\\src\\out\\release_full_x64";
+constexpr wchar_t kPrivateBinaryFolder[] = L"";
 
 WebView2Manager::WebView2Manager(HWND hwnd) 
         : window_handle_(hwnd) {}
@@ -45,7 +44,7 @@ HRESULT WebView2Manager::CreateCoreWebView2(const wchar_t* site_url) {
         arguments += L"  --disable-gpu";
     }
 
-    if (g_disable_software_render) {
+    if (g_disable_software_renderer) {
         arguments += L"  --disable-features=msEdgeTextureStreamSoftwareRenderingWhenGpuDisabled";
     }
 
